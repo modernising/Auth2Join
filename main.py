@@ -1,5 +1,4 @@
-import json,requests;from selenium import webdriver;from selenium.webdriver.chrome.options import Options;from flask import Flask,request;from concurrent.futures import ThreadPoolExecutor
-app = Flask(__name__)
+import json,requests
 class Main:
     def __init__(self,guildId = None,botToken = None,clientId = None,uri = None,clientSecret = None):
         self.botToken = botToken
@@ -7,12 +6,6 @@ class Main:
         self.clientId = clientId
         self.redirectUri = uri
         self.clientSecret = clientSecret
-
-    def openUri(self, uriLocation):
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        driver = webdriver.Chrome(options=chrome_options)
-        driver.get(uriLocation)
 
     def authorizeToken(self,token):
         try:
@@ -33,10 +26,10 @@ class Main:
                 }
             authorized = requests.post('https://discord.com/api/v10/oauth2/authorize', headers=headers, params=params, json=payload)
             if authorized.status_code in [201,200,204]:
-                self.openUri(authorized.json()['location'])
                 return authorized.json()['location'][-30:]
             elif authorized.status_code != [201,200,204]:
                 print(authorized.status_code,authorized.json())
+                return None 
                 pass
         except Exception as authError:
             print(authError)
@@ -86,18 +79,12 @@ class Main:
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
-        x = requests.post('https://discord.com/api/v10/oauth2/token' , data=data, headers=headers)
+        accessToken = requests.post('https://discord.com/api/v10/oauth2/token' , data=data, headers=headers)
         try:
-            return x.json()['access_token']
+            return accessToken.json()['access_token']
         except:
             return None
-        
-@app.route('/oauth2-redirect', methods=['GET'])
-def oauth2_redirect():
-    return "Hi"
 if __name__ == '__main__':
     with open("config.json", "r") as oauthInfo:
         config = json.load(oauthInfo)
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        executor.submit(app.run, host='localhost', port=3000)
-        executor.submit(Main(guildId=config['guildId'],botToken=config['botToken'],clientId=config['clientId'],clientSecret=config['clientSecret'],uri=config['uri']).Join())
+    Main(guildId=config['guildId'],botToken=config['botToken'],clientId=config['clientId'],clientSecret=config['clientSecret'],uri=config['uri']).Join()
