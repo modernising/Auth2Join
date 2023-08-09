@@ -98,7 +98,6 @@ def oauth2_redirect():
 if __name__ == '__main__':
     with open("config.json", "r") as oauthInfo:
         config = json.load(oauthInfo)
-    print('https://discord.com/api/oauth2/authorize?client_id=%s&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth2-redirect&response_type=code&scope=identify%20guilds.join'% config['clientId'])
     with ThreadPoolExecutor(max_workers=2) as executor:
         executor.submit(app.run, host='localhost', port=3000)
         executor.submit(Main(guildId=config['guildId'],botToken=config['botToken'],clientId=config['clientId'],clientSecret=config['clientSecret'],uri=config['uri']).Join())
