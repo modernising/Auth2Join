@@ -54,8 +54,9 @@ class Main:
     
     def Join(self):
         with open('tokens.txt') as tokens:
-            for token in tokens.readlines():
-                print('Loaded %s from tokens.txt' % len(token))
+            loadTokens = tokens.readlines()
+            for token in loadTokens:
+                print('Loaded %s from tokens.txt' % len(loadTokens))
             try:
                 Id = self.userId(token.strip())
                 code = self.authorizeToken(token.strip())
@@ -68,7 +69,7 @@ class Main:
                     }
                 joinedToken = requests.put('https://discord.com/api/v8/guilds/%s/members/%s'% (self.guildId,Id), headers=headers, json=payload)
                 if joinedToken.status_code in [200,201,204]:
-                    print('Joined')
+                    print('Joined %s' % token.strip())
                 else:
                     print(joinedToken.status_code, joinedToken.text)
             except Exception as joinError:
@@ -93,7 +94,6 @@ class Main:
         
 @app.route('/oauth2-redirect', methods=['GET'])
 def oauth2_redirect():
-    code = request.args.get('code')
     return "Hi"
 if __name__ == '__main__':
     with open("config.json", "r") as oauthInfo:
