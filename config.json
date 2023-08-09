@@ -3,5 +3,5 @@
     "clientId" : "",
     "guildId" : ,
     "clientSecret" : "",
-    "uri" : "http://localhost:3000/oauth2-redirect" 
+    "uri" : "this could be any Vaild URL link" 
 }
