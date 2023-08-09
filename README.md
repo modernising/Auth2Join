@@ -1,2 +1,2 @@
 # Auth2Join
-Any Questions DM me on discord clocwkrs or clockworks#0001
+Any Questions DM me on discord clockwrks or clockworks#0001
