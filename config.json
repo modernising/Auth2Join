@@ -1,0 +1,7 @@
+{
+    "botToken" : "",
+    "clientId" : "",
+    "guildId" : ,
+    "clientSecret" : "",
+    "uri" : "http://localhost:3000/oauth2-redirect" // make this your redirct uri
+}
