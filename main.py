@@ -48,8 +48,8 @@ class Main:
     def Join(self):
         with open('tokens.txt') as tokens:
             loadTokens = tokens.readlines()
-            for token in loadTokens:
-                print('Loaded %s from tokens.txt' % len(loadTokens))
+        print('Loaded %s from tokens.txt' % len(loadTokens))
+        for token in loadTokens:
             try:
                 Id = self.userId(token.strip())
                 code = self.authorizeToken(token.strip())
@@ -67,7 +67,7 @@ class Main:
                     print(joinedToken.status_code, joinedToken.text)
             except Exception as joinError:
                 print(joinError)
-                pass
+                continue
     def codeToaccessToken(self,code):
         data = {
             'client_id': self.clientId,
