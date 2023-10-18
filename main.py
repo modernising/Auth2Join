@@ -1,4 +1,10 @@
-import json,requests
+import json,requests,logging,time
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="\x1b[38;5;9m[\x1b[0m%(asctime)s\x1b[38;5;9m]\x1b[0m %(message)s\x1b[0m",
+    datefmt="%H:%M:%S"
+)
 class Main:
     def __init__(self,guildId = None,botToken = None,clientId = None,uri = None,clientSecret = None):
         self.botToken = botToken
@@ -28,12 +34,8 @@ class Main:
             if authorized.status_code in [201,200,204]:
                 return authorized.json()['location'][-30:]
             elif authorized.status_code != [201,200,204]:
-                print(authorized.status_code,authorized.json())
                 return None 
-                pass
-        except Exception as authError:
-            print(authError)
-        finally:
+        except:
             pass
 
     def userId(self,token):
@@ -43,31 +45,36 @@ class Main:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
             }
         Id = requests.get("https://discord.com/api/v10/users/@me",headers=headers)
-        return Id.json()['id']
+        return Id.json()['id'],Id.json()['username']
     
     def Join(self):
         with open('tokens.txt') as tokens:
             loadTokens = tokens.readlines()
-        print('Loaded %s from tokens.txt' % len(loadTokens))
+        logging.info('Loaded %s from tokens.txt' % len(loadTokens))
+        addedTokens = 0
         for token in loadTokens:
             try:
-                Id = self.userId(token.strip())
+                Id , Username = self.userId(token.strip())
                 code = self.authorizeToken(token.strip())
                 headers = {
                     'Authorization' : 'Bot %s' % self.botToken,
                     'Content-Type': 'application/json',
                     }
                 payload = {
-                    'access_token' : self.codeToaccessToken(code)
+                    'access_token' : self.codeToaccessToken(code),
                     }
                 joinedToken = requests.put('https://discord.com/api/v8/guilds/%s/members/%s'% (self.guildId,Id), headers=headers, json=payload)
                 if joinedToken.status_code in [200,201,204]:
-                    print('Joined %s' % token.strip())
+                    addedTokens +=1
+                    logging.info('Joined %s (%s)' % (Username,Id))
+                    time.sleep(2)
                 else:
-                    print(joinedToken.status_code, joinedToken.text)
-            except Exception as joinError:
-                print(joinError)
+                    logging.info('Could not Join %s Error : %s' % (Username,joinedToken.text))
+                    time.sleep(2)
+            except:
                 continue
+        logging.info('Added %s Tokens to %s' % (addedTokens, self.guildId))
+        
     def codeToaccessToken(self,code):
         data = {
             'client_id': self.clientId,
@@ -84,6 +91,7 @@ class Main:
             return accessToken.json()['access_token']
         except:
             return None
+        
 if __name__ == '__main__':
     with open("config.json", "r") as oauthInfo:
         config = json.load(oauthInfo)
